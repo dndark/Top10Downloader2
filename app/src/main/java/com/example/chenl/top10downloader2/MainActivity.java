@@ -12,6 +12,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,6 +23,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        DownloadData downloadData = new DownloadData();
+        downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml");
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -67,10 +73,34 @@ public class MainActivity extends AppCompatActivity {
             return mFileContents;
         }
 
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Log.d("DownloadData", "Result was " + s);
+        }
+
         private String downloadXMLFile(String urlPath) {
             StringBuilder tempBuffer = new StringBuilder();
             try {
                 URL url = new URL(urlPath);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                int res = connection.getResponseCode();
+                Log.d("DownloadData", "The response code was " + res);
+                InputStream is = connection.getInputStream();
+                InputStreamReader ist = new InputStreamReader(is);
+
+                int charRead;
+                char[] InputBuffer = new char[500];
+                while (true) {
+                    charRead = ist.read(InputBuffer);
+                    if (charRead <= 0) {
+                        break;
+                    }
+                    tempBuffer.append(String.copyValueOf(InputBuffer, 0, charRead));
+                }
+
+                return tempBuffer.toString();
+
             } catch (IOException e) {
                 Log.d("DownloadData", "IO exception reading data: " + e.getMessage());
             }
