@@ -10,6 +10,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +21,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
+
+
+    private TextView xmlTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            xmlTextView.setText(mFileContents);
             Log.d("DownloadData", "Result was " + s);
         }
 
@@ -103,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (IOException e) {
                 Log.d("DownloadData", "IO exception reading data: " + e.getMessage());
+                e.getStackTrace();
             }
             return null;
         }
