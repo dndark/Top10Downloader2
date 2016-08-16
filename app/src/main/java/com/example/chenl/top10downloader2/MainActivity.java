@@ -10,9 +10,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
-
-import org.w3c.dom.Text;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,12 +23,25 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
 
 
-    private TextView xmlTextView;
-
+    private Button btnParse;
+    private ListView listApps;
+    private String mFileContents;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        btnParse = (Button) findViewById(R.id.btnParse);
+        btnParse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ParseApplication parseApplications = new ParseApplication(mFileContents);
+                parseApplications.process();
+                ArrayAdapter<Application> arrayAdapter = new ArrayAdapter<Application>(
+                        MainActivity.this, R.layout.list_item, parseApplications.getApplications());
+                listApps.setAdapter(arrayAdapter);
+            }
+        });
+        listApps = (ListView) findViewById(R.id.xmlListView);
         DownloadData downloadData = new DownloadData();
         downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml");
 
@@ -68,8 +81,6 @@ public class MainActivity extends AppCompatActivity {
     }
     private class DownloadData extends AsyncTask<String, Void, String> {
 
-        private String mFileContents;
-
         @Override
         protected String doInBackground(String... params) {
             mFileContents = downloadXMLFile(params[0]);
@@ -82,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            xmlTextView.setText(mFileContents);
             Log.d("DownloadData", "Result was " + s);
         }
 
